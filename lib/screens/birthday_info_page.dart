@@ -5,7 +5,6 @@ import 'package:confetti/confetti.dart';
 import '../../components/birthday_timer/birthday_timer.dart';
 import '../../components/wish_generator.dart';
 import '../../screens/birthday_edit_page.dart';
-import '../../utilities/Birthday.dart';
 import '../../utilities/birthday_data.dart';
 import '../../utilities/birthday_group_data.dart';
 import '../../utilities/calculator.dart';
@@ -40,7 +39,7 @@ class _BirthdayInfoPageState extends State<BirthdayInfoPage> {
     final birthday = getDataById(widget.birthdayId);
     if (birthday.birthdayGroupId != null) {
       final group = groupList.firstWhere(
-            (group) => group.id == birthday.birthdayGroupId,
+        (group) => group.id == birthday.birthdayGroupId,
         orElse: () => throw Exception('Group not found'),
       );
       setState(() {
@@ -122,8 +121,8 @@ class _BirthdayInfoPageState extends State<BirthdayInfoPage> {
                 .push(MaterialPageRoute(builder: (BuildContext context) {
               return BirthdayEditPage(widget.birthdayId);
             })).then((value) => setState(() {
-              _loadGroupInfo();
-            }));
+                      _loadGroupInfo();
+                    }));
           },
         ),
       ],
@@ -190,6 +189,25 @@ class _BirthdayInfoPageState extends State<BirthdayInfoPage> {
         zodiacSign(),
         const SizedBox(height: 15),
         groupInformation(),
+        if (getDataById(widget.birthdayId).note != null &&
+            getDataById(widget.birthdayId).note!.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 15.0, left: 20, right: 20),
+            child: Column(
+              children: [
+                ViewTitle('Notes:'),
+                const SizedBox(height: 10),
+                Text(
+                  getDataById(widget.birthdayId).note!,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: Constants.whiteSecondary,
+                    fontSize: Constants.normalFontSize,
+                  ),
+                ),
+              ],
+            ),
+          ),
       ],
     );
   }

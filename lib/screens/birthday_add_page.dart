@@ -25,6 +25,7 @@ class _AddBirthdayPageState extends State<AddBirthdayPage> {
     minute: DateTime.now().minute,
   );
   int selectedGroupId = 0; // Default group ID
+  String notes = '';
 
   final ScrollController _scrollController = ScrollController();
   final _formKey = GlobalKey<FormState>();
@@ -61,6 +62,9 @@ class _AddBirthdayPageState extends State<AddBirthdayPage> {
                 const SizedBox(height: 40),
                 ViewTitle('Birthday Group:'),
                 groupDropdown(),
+                const SizedBox(height: 40),
+                ViewTitle('Notes:'),
+                inputNotesField(),
                 const SizedBox(height: 40),
                 ViewTitle('${AppLocalizations.of(context)!.preview}:'),
                 cardPreview(),
@@ -170,7 +174,8 @@ class _AddBirthdayPageState extends State<AddBirthdayPage> {
           ],
           decoration: InputDecoration(
             focusedBorder: const OutlineInputBorder(
-              borderSide: BorderSide(width: 3, color: Constants.purpleSecondary),
+              borderSide:
+                  BorderSide(width: 3, color: Constants.purpleSecondary),
               borderRadius: BorderRadius.all(Radius.circular(15)),
             ),
             fillColor: Constants.purpleSecondary,
@@ -200,13 +205,68 @@ class _AddBirthdayPageState extends State<AddBirthdayPage> {
           onChanged: (String? value) {
             setState(() {
               name = value.toString();
-              isNameInputCorrect = true;
+              if (_formKey.currentState!.validate()) {
+                isNameInputCorrect = true;
+              } else {
+                isNameInputCorrect = false;
+              }
             });
           },
           validator: (String? value) {
+            if (value == null || value.isEmpty) {
+              return AppLocalizations.of(context)!.nameValidation;
+            }
             return null;
           },
         ),
+      ),
+    );
+  }
+
+  Container inputNotesField() {
+    return Container(
+      decoration: const BoxDecoration(
+        color: Constants.greySecondary,
+        borderRadius: BorderRadius.all(Radius.circular(15)),
+      ),
+      margin: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(10),
+      child: TextFormField(
+        keyboardType: TextInputType.multiline,
+        maxLines: null,
+        keyboardAppearance: Brightness.dark,
+        style: const TextStyle(color: Constants.whiteSecondary),
+        decoration: InputDecoration(
+          focusedBorder: const OutlineInputBorder(
+            borderSide: BorderSide(width: 3, color: Constants.purpleSecondary),
+            borderRadius: BorderRadius.all(Radius.circular(15)),
+          ),
+          fillColor: Constants.purpleSecondary,
+          focusColor: Constants.purpleSecondary,
+          border: const OutlineInputBorder(
+            borderRadius: BorderRadius.all(Radius.circular(15)),
+            borderSide: BorderSide.none,
+          ),
+          floatingLabelStyle: const TextStyle(
+            color: Constants.purpleSecondary,
+            fontSize: Constants.biggerFontSize,
+            fontWeight: FontWeight.bold,
+          ),
+          hintStyle: const TextStyle(
+            color: Constants.lighterGrey,
+            fontSize: 15,
+          ),
+          labelText: 'Notes',
+          labelStyle: const TextStyle(
+            color: Constants.whiteSecondary,
+            fontSize: Constants.normalFontSize,
+          ),
+        ),
+        onChanged: (String? value) {
+          setState(() {
+            notes = value.toString();
+          });
+        },
       ),
     );
   }
@@ -227,7 +287,7 @@ class _AddBirthdayPageState extends State<AddBirthdayPage> {
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
           backgroundColor:
-          isNameInputCorrect ? Constants.purpleSecondary : Colors.red,
+              isNameInputCorrect ? Constants.purpleSecondary : Colors.red,
         ),
         child: Text(
           AppLocalizations.of(context)!.save,
@@ -259,21 +319,19 @@ class _AddBirthdayPageState extends State<AddBirthdayPage> {
       date.minute,
     );
 
-    // Use the selectedGroupId when creating the Birthday object
-    addBirthday(Birthday(
+    Birthday newBirthday = Birthday(
       name,
       birthdayWithTime,
-      null, // id will be auto-generated
-      null, // notification ids
-      null, // allow notifications
-      selectedGroupId, // birthday group id
-    )).then(
-          (value) => Navigator.pushReplacementNamed(context, '/').then(
-            (value) => setState(
-              () {},
-        ),
-      ),
+      null,
+      null,
+      null,
+      selectedGroupId,
+      notes,
     );
+
+    addBirthday(newBirthday).then((_) {
+      Navigator.pushReplacementNamed(context, '/');
+    });
   }
 
   Row infoText(String text) {
