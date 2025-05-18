@@ -1,5 +1,4 @@
 import 'birthday_data.dart';
-import '../../utilities/notification_manager.dart';
 
 class Birthday {
   late int _birthdayId;
@@ -18,7 +17,6 @@ class Birthday {
     _birthdayId = birthdayId;
   }
 
-
   String get name {
     return _name;
   }
@@ -26,6 +24,7 @@ class Birthday {
   set setnote(String note) {
     _note = note;
   }
+
   String? get note {
     return _note;
   }
@@ -33,6 +32,7 @@ class Birthday {
   set setname(String name) {
     _name = name;
   }
+
   DateTime get date {
     return _date;
   }
@@ -107,4 +107,4 @@ class Birthday {
       'birthdayGroupId': _birthdayGroupId,
     };
   }
-  }
+}

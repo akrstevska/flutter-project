@@ -28,6 +28,8 @@
     "nameError": "Please enter a name.",
     "save": "Save",
 
+    "nameValidation": "Name is required.",
+
     "settings": "Settings",
 
     "exportImport": "Export/Import",

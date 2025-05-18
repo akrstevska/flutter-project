@@ -24,6 +24,7 @@ class _BirthdayEditPageState extends State<BirthdayEditPage> {
   late DateTime newDate;
   late TimeOfDay newTime;
   late int selectedGroupId;
+  late String newNotes;
 
   final ScrollController _scrollController = ScrollController();
 
@@ -36,8 +37,8 @@ class _BirthdayEditPageState extends State<BirthdayEditPage> {
     newName = birthday.name;
     newDate = birthday.date;
     newTime = TimeOfDay(hour: newDate.hour, minute: newDate.minute);
-    selectedGroupId = birthday.birthdayGroupId ?? 0; // Use existing group or default to 0
-    debugPrint('Initializing edit page with group ID: $selectedGroupId');
+    selectedGroupId = birthday.birthdayGroupId ?? 0;
+    newNotes = birthday.note ?? '';
     super.initState();
   }
 
@@ -77,6 +78,9 @@ class _BirthdayEditPageState extends State<BirthdayEditPage> {
               const SizedBox(height: 40),
               ViewTitle('Birthday Group:'),
               groupDropdown(),
+              const SizedBox(height: 40),
+              ViewTitle('Notes:'),
+              inputNotesField(),
               const SizedBox(height: 40),
               ViewTitle('${AppLocalizations.of(context)!.preview}:'),
               cardPreview(),
@@ -185,7 +189,8 @@ class _BirthdayEditPageState extends State<BirthdayEditPage> {
           ],
           decoration: InputDecoration(
             focusedBorder: const OutlineInputBorder(
-              borderSide: BorderSide(width: 3, color: Constants.purpleSecondary),
+              borderSide:
+                  BorderSide(width: 3, color: Constants.purpleSecondary),
               borderRadius: BorderRadius.all(Radius.circular(15)),
             ),
             fillColor: Constants.purpleSecondary,
@@ -221,9 +226,61 @@ class _BirthdayEditPageState extends State<BirthdayEditPage> {
             });
           },
           validator: (String? value) {
+            if (value == null || value.isEmpty) {
+              return AppLocalizations.of(context)!.nameValidation;
+            }
             return null;
           },
         ),
+      ),
+    );
+  }
+
+  Container inputNotesField() {
+    return Container(
+      decoration: const BoxDecoration(
+        color: Constants.greySecondary,
+        borderRadius: BorderRadius.all(Radius.circular(15)),
+      ),
+      margin: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(10),
+      child: TextFormField(
+        initialValue: newNotes,
+        keyboardType: TextInputType.multiline,
+        maxLines: null,
+        keyboardAppearance: Brightness.dark,
+        style: const TextStyle(color: Constants.whiteSecondary),
+        decoration: InputDecoration(
+          focusedBorder: const OutlineInputBorder(
+            borderSide: BorderSide(width: 3, color: Constants.purpleSecondary),
+            borderRadius: BorderRadius.all(Radius.circular(15)),
+          ),
+          fillColor: Constants.purpleSecondary,
+          focusColor: Constants.purpleSecondary,
+          border: const OutlineInputBorder(
+            borderRadius: BorderRadius.all(Radius.circular(15)),
+            borderSide: BorderSide.none,
+          ),
+          floatingLabelStyle: const TextStyle(
+            color: Constants.purpleSecondary,
+            fontSize: Constants.biggerFontSize,
+            fontWeight: FontWeight.bold,
+          ),
+          hintStyle: const TextStyle(
+            color: Constants.lighterGrey,
+            fontSize: 15,
+          ),
+          labelText: 'Notes',
+          labelStyle: const TextStyle(
+            color: Constants.whiteSecondary,
+            fontSize: Constants.normalFontSize,
+          ),
+        ),
+        onChanged: (String? value) {
+          setState(() {
+            newNotes = value.toString();
+          });
+        },
       ),
     );
   }
@@ -244,7 +301,7 @@ class _BirthdayEditPageState extends State<BirthdayEditPage> {
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
           backgroundColor:
-          isNameInputCorrect ? Constants.purpleSecondary : Colors.red,
+              isNameInputCorrect ? Constants.purpleSecondary : Colors.red,
         ),
         child: Text(
           AppLocalizations.of(context)!.save,
@@ -260,7 +317,7 @@ class _BirthdayEditPageState extends State<BirthdayEditPage> {
     );
   }
 
-  void saveBirthday(BuildContext context) {
+  void saveBirthday(BuildContext context) async {
     if (!_formKey.currentState!.validate()) {
       setState(() {
         isNameInputCorrect = false;
@@ -268,26 +325,23 @@ class _BirthdayEditPageState extends State<BirthdayEditPage> {
       return;
     }
 
-    newDate = DateTime(
-      newDate.year,
-      newDate.month,
-      newDate.day,
-      newTime.hour,
-      newTime.minute,
+    Birthday updatedBirthday = Birthday(
+      newName,
+      DateTime(newDate.year, newDate.month, newDate.day, newTime.hour,
+          newTime.minute),
+      widget.birthdayId,
+      null,
+      null,
+      selectedGroupId,
+      newNotes,
     );
 
-    updateBirthday(
-      widget.birthdayId,
-      Birthday(
-        newName,
-        newDate,
-        widget.birthdayId,
-        null,
-        null,
-        selectedGroupId,
-        getDataById(widget.birthdayId).note,
-      ),
-    ).then((_) => Navigator.pop(context));
+    try {
+      await updateBirthday(widget.birthdayId, updatedBirthday);
+      Navigator.pop(context);
+    } catch (e) {
+      print('Error saving birthday: $e');
+    }
   }
 
   Row infoText(String text) {
