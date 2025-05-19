@@ -26,9 +26,9 @@
     "editInfo": "Note that all properties can be changed later, by tapping on a birthday on the home screen.",
     "name": "Name",
     "nameError": "Please enter a name.",
+    "dateError": "Please select a date.",
     "save": "Save",
 
-    "nameValidation": "Name is required.",
 
     "settings": "Settings",
 
