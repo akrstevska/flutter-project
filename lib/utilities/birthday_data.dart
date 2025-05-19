@@ -58,25 +58,22 @@ Birthday createBirthdayFromData(List<String> birthdayArray) {
 
 Future<void> addBirthday(Birthday birthday) async {
   try {
-    final response = await http.post(
-      Uri.parse('${Constants.apiBaseUrl}/Birthday'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode(birthday.toJson()),
-    );
-
+    final url = Uri.parse('${Constants.apiBaseUrl}/Birthday');
+    final headers = <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    };
+    final body = jsonEncode(birthday.toJson());
+    debugPrint('📝 Body: $body');
+    final response = await http.post(url, headers: headers, body: body);
+    debugPrint('Response Status: ${response.statusCode}');
+    debugPrint('Response Body: ${response.body}');
     if (response.statusCode == 201) {
-      // Birthday created successfully
-      // Optionally, parse the response body if needed
-      // Example: Birthday createdBirthday = Birthday.fromJson(jsonDecode(response.body));
       birthdayList.add(birthday);
     } else {
       throw Exception('Failed to add birthday');
     }
   } catch (e) {
-    print('Error adding birthday: $e');
-    // Handle error as needed
+    debugPrint('Error adding birthday: $e');
   }
 }
 
