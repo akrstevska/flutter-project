@@ -10,6 +10,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
+import '../utilities/form_validator.dart';
+
 class AddBirthdayPage extends StatefulWidget {
   const AddBirthdayPage({Key? key}) : super(key: key);
 
@@ -110,14 +112,36 @@ class _AddBirthdayPageState extends State<AddBirthdayPage> {
     );
   }
 
-  DatePicker datePicker() {
-    return DatePicker(
-      date,
-      onDayChanged: (newDayTime) {
-        setState(() {
-          date = newDayTime;
-        });
-      },
+  Widget datePicker() {
+    String? dateErrorMessage;
+    return Column(
+      children: [
+        DatePicker(
+          date,
+          onDayChanged: (newDayTime) {
+            setState(() {
+              date = newDayTime;
+              dateErrorMessage = FormValidator.validateRequiredDate(
+                  context,
+                  newDayTime,
+                  AppLocalizations.of(context)!.editDate
+              );
+            });
+          },
+        ),
+        if (dateErrorMessage != null)
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+            width: double.infinity,
+            child: Text(
+              dateErrorMessage!,
+              style: const TextStyle(
+                color: Colors.red,
+                fontSize: Constants.smallerFontSize,
+              ),
+            ),
+          ),
+      ],
     );
   }
 
@@ -174,8 +198,7 @@ class _AddBirthdayPageState extends State<AddBirthdayPage> {
           ],
           decoration: InputDecoration(
             focusedBorder: const OutlineInputBorder(
-              borderSide:
-                  BorderSide(width: 3, color: Constants.purpleSecondary),
+              borderSide: BorderSide(width: 3, color: Constants.purpleSecondary),
               borderRadius: BorderRadius.all(Radius.circular(15)),
             ),
             fillColor: Constants.purpleSecondary,
@@ -200,23 +223,32 @@ class _AddBirthdayPageState extends State<AddBirthdayPage> {
             ),
             errorStyle: const TextStyle(
               fontSize: Constants.smallerFontSize,
+              color: Colors.red,
             ),
           ),
           onChanged: (String? value) {
             setState(() {
               name = value.toString();
-              if (_formKey.currentState!.validate()) {
-                isNameInputCorrect = true;
-              } else {
-                isNameInputCorrect = false;
-              }
             });
           },
           validator: (String? value) {
-            if (value == null || value.isEmpty) {
-              return AppLocalizations.of(context)!.nameValidation;
+            String? validationResult = FormValidator.validateRequired(
+                context,
+                value,
+                AppLocalizations.of(context)!.name
+            );
+
+            if (validationResult != null) {
+              setState(() {
+                isNameInputCorrect = false;
+              });
+            } else {
+              setState(() {
+                isNameInputCorrect = true;
+              });
             }
-            return null;
+
+            return validationResult;
           },
         ),
       ),
