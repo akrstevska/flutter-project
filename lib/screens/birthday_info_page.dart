@@ -35,18 +35,28 @@ class _BirthdayInfoPageState extends State<BirthdayInfoPage> {
     _loadGroupInfo();
   }
 
-  void _loadGroupInfo() {
+  void _loadGroupInfo() async {
     final birthday = getDataById(widget.birthdayId);
+    await loadBirthdayGroups();
+
     if (birthday.birthdayGroupId != null) {
-      final group = groupList.firstWhere(
-        (group) => group.id == birthday.birthdayGroupId,
-        orElse: () => throw Exception('Group not found'),
-      );
-      setState(() {
-        groupName = group.name;
-      });
+      try {
+        final group = groupList.firstWhere(
+              (group) => group.id == birthday.birthdayGroupId,
+        );
+        setState(() {
+          groupName = group.name;
+        });
+      } catch (e) {
+        debugPrint('Group with ID ${birthday.birthdayGroupId} not found.');
+        setState(() {
+          groupName = null;
+        });
+      }
     }
   }
+
+
 
   @override
   void dispose() {
