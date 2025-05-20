@@ -25,7 +25,7 @@ class _BirthdayEditPageState extends State<BirthdayEditPage> {
   late String newName;
   late DateTime newDate;
   late TimeOfDay newTime;
-  late int selectedGroupId;
+  late int? selectedGroupId; 
   late String newNotes;
 
   final ScrollController _scrollController = ScrollController();
@@ -39,7 +39,7 @@ class _BirthdayEditPageState extends State<BirthdayEditPage> {
     newName = birthday.name;
     newDate = birthday.date;
     newTime = TimeOfDay(hour: newDate.hour, minute: newDate.minute);
-    selectedGroupId = birthday.birthdayGroupId ?? 0;
+    selectedGroupId = birthday.birthdayGroupId;
     newNotes = birthday.note ?? '';
     super.initState();
   }
@@ -105,8 +105,8 @@ class _BirthdayEditPageState extends State<BirthdayEditPage> {
       margin: const EdgeInsets.all(20),
       padding: const EdgeInsets.all(10),
       child: BirthdayGroupDropdown(
-        initialValue: selectedGroupId,
-        onValueChanged: (int groupId) {
+        initialValue: selectedGroupId, 
+        onValueChanged: (int? groupId) { 
           setState(() {
             selectedGroupId = groupId;
           });
@@ -335,7 +335,7 @@ class _BirthdayEditPageState extends State<BirthdayEditPage> {
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
           backgroundColor:
-              isNameInputCorrect ? Constants.purpleSecondary : Colors.red,
+          isNameInputCorrect ? Constants.purpleSecondary : Colors.red,
         ),
         child: Text(
           AppLocalizations.of(context)!.save,
@@ -366,7 +366,7 @@ class _BirthdayEditPageState extends State<BirthdayEditPage> {
       widget.birthdayId,
       null,
       null,
-      selectedGroupId,
+      selectedGroupId, 
       newNotes,
     );
 
